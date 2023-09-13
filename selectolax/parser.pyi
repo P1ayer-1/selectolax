@@ -93,6 +93,9 @@ class Node:
     def traverse(self, include_text: bool = False) -> Iterator["Node"]:
         """Iterate over all child and next nodes starting from the current level."""
         ...
+    def traverse_children(self, include_text: bool = False) -> Iterator["Node"]:
+        """Iterate over all child nodes starting from the current level."""
+        ...
     @property
     def tag(self) -> str:
         """Return the name of the current tag (e.g. div, p, img)."""

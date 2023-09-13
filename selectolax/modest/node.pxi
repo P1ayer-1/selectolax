@@ -376,6 +376,54 @@ cdef class Node:
             if current_node.child is not NULL:
                 stack.push(current_node.child)
 
+    def traverse_children(self, include_text=False):
+        """Iterate over all child nodes, including nested children, starting from the current level.
+
+        Parameters
+        ----------
+        include_text : bool
+            If True, includes text nodes as well.
+
+        Yields
+        -------
+        node
+        """
+        cdef Stack stack = Stack(_STACK_SIZE)
+        cdef myhtml_tree_node_t* current_node = NULL
+        cdef Node next_node
+        cdef myhtml_tree_node_t* parent = NULL
+
+
+
+    # Initialize the stack with the first child of the current node
+        if self.node.child is not NULL:
+            stack.push(self.node.child)
+
+        # Keep track of the initial parent node
+        cdef myhtml_tree_node_t* initial_node = self.node
+
+        while not stack.is_empty():
+            current_node = stack.pop()
+            if current_node != NULL and not (current_node.tag_id == MyHTML_TAG__TEXT and not include_text):
+                next_node = Node()
+                next_node._init(current_node, self.parser)
+                yield next_node
+
+
+            parent = current_node.parent
+
+            while parent is not NULL and parent != initial_node:
+                parent = parent.parent
+            
+            # Add the next sibling of the current node to the stack only if it's within the subtree
+            if parent is not NULL and current_node.next is not NULL:
+                stack.push(current_node.next)
+            # Add the first child of the current node to the stack
+            if current_node.child is not NULL:
+                stack.push(current_node.child)
+
+
+
     @property
     def tag(self):
         """Return the name of the current tag (e.g. div, p, img).
